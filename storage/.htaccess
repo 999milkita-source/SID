@@ -1,0 +1,13 @@
+# Disable PHP execution
+
+<FilesMatch "\.php$">
+Deny from all
+</FilesMatch>
+
+# Optional: deny direct access to all
+
+<IfModule mod_autoindex.c>
+    Options -Indexes
+</IfModule>
+Options -Indexes
+php_flag engine off

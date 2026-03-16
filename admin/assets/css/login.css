@@ -1,0 +1,90 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", Arial, Helvetica, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ecfeff, #f8fafc);
+  color: #0f172a;
+}
+
+/* =============================
+   LOGIN PAGE (UPGRADED)
+============================= */
+.publiclogin {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.publiclogin .formlogin {
+  background: linear-gradient(145deg, #0f172a, #020617);
+  width: 100%;
+  max-width: 380px;
+  padding: 2.2rem 1.6rem;
+  border-radius: 20px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+  color: #e5e7eb;
+}
+
+.publiclogin h2 {
+  text-align: center;
+  margin-bottom: 1.4rem;
+}
+
+.formlogin input {
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  font-size: 15px;
+}
+
+.formlogin button {
+  margin-top: 1rem;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #22d3ee, #0ea5e9);
+  color: #020617;
+  transition: transform 0.3s ease;
+}
+
+.formlogin button:hover {
+  transform: translateY(-2px);
+}
+
+/* =============================
+   MOBILE MODE (ANTI-MAINSTREAM)
+============================= */
+@media (max-width: 768px) {
+  /* navbar jadi tombol mengambang */
+  .navbar {
+    top: auto;
+    bottom: 22px;
+    left: auto;
+    right: 22px;
+    width: auto;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .navbar h1 {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

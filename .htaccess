@@ -1,0 +1,16 @@
+# Deny access to sensitive folders
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^(config|secure|logs) - [F,L]
+RewriteRule ^storage/(.*\.php)$ - [F,L]
+</IfModule>
+
+# Disable directory listing
+Options -Indexes
+
+# Basic security headers
+<IfModule mod_headers.c>
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "DENY"
+Header set X-XSS-Protection "1; mode=block"
+</IfModule>

@@ -1,0 +1,385 @@
+/* RESET & BASE */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  background: #f4f6f9;
+  color: #333;
+  line-height: 1.6;
+  font-size: 16px; /* dasar font */
+}
+
+a {
+  text-decoration: none;
+  color: #0275d8;
+}
+a:hover {
+  color: #025aa5;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  padding: 20px;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar h3 {
+  margin-bottom: 20px;
+  color: #0275d8;
+  font-size: 1.5em;
+}
+.sidebar ul {
+  list-style: none;
+}
+.sidebar ul li {
+  margin-bottom: 15px;
+}
+.sidebar ul li a {
+  color: #333;
+  font-weight: 500;
+  transition: 0.3s;
+  font-size: 1em;
+}
+.sidebar ul li a:hover {
+  color: #0275d8;
+}
+
+/* MAIN CONTENT */
+main.content {
+  margin-left: 240px;
+  padding: 20px;
+}
+h1 {
+  font-size: 1.8em;
+  margin-bottom: 5px;
+  color: #0275d8;
+}
+.subtitle {
+  margin-bottom: 20px;
+  color: #555;
+  font-style: italic;
+}
+
+/* CARD */
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+/* TABLE */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 500px;
+}
+.table th,
+.table td {
+  padding: 12px;
+  border: 1px solid #e2e2e2;
+  text-align: left;
+}
+.table th {
+  background: #0275d8;
+  color: #fff;
+}
+.table tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+/* BADGE STATUS */
+.badge {
+  padding: 5px 12px;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-block;
+}
+.pending {
+  background: #f0ad4e;
+}
+.approved {
+  background: #5cb85c;
+}
+.rejected {
+  background: #d9534f;
+}
+.final {
+  background: #0275d8;
+}
+
+/* BUTTON DOWNLOAD */
+.btn-download {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background-color: #0275d8;
+  color: #fff;
+  font-weight: 500;
+  transition: 0.3s;
+}
+.btn-download:hover {
+  background-color: #025aa5;
+}
+
+/* FILE PREVIEW */
+#file_preview {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+#file_preview img {
+  max-width: 120px;
+  max-height: 120px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+#file_preview p {
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  font-size: 0.9em;
+  color: #555;
+}
+
+/* FORM AJUKAN SURAT */
+form#form_surat {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  max-width: 700px;
+  margin-bottom: 30px;
+}
+form#form_surat label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+form#form_surat input[type="text"],
+form#form_surat select,
+form#form_surat textarea {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: 0.3s;
+}
+form#form_surat input:focus,
+form#form_surat select:focus,
+form#form_surat textarea:focus {
+  border-color: #0275d8;
+  outline: none;
+}
+form#form_surat button[type="submit"] {
+  background: #0275d8;
+  color: #fff;
+  padding: 10px 18px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+form#form_surat button[type="submit"]:hover {
+  background: #025aa5;
+}
+
+/* SUCCESS / ERROR */
+p.success {
+  background: #d4edda;
+  color: #155724;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+p.error {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+/* TABLE PREVIOUS SURAT */
+.card-table {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+}
+.card-table table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 500px;
+}
+.card-table th,
+.card-table td {
+  padding: 12px;
+  border: 1px solid #e2e2e2;
+  text-align: left;
+}
+.card-table th {
+  background: #0275d8;
+  color: #fff;
+}
+.card-table tr:nth-child(even) {
+  background: #f9f9f9;
+}
+.card-table .badge {
+  font-size: 0.9em;
+}
+.card-table a.btn-download {
+  font-size: 0.85em;
+  padding: 5px 10px;
+}
+
+/* RESPONSIVE MOBILE OPTIMIZED */
+@media screen and (max-width: 992px) {
+  body {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  h1 {
+    font-size: 1.5em;
+  }
+  .sidebar {
+    width: 180px;
+    padding: 15px;
+  }
+  main.content {
+    margin-left: 190px;
+    padding: 15px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  body {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  h1 {
+    font-size: 1.3em;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    padding: 15px;
+  }
+  main.content {
+    margin-left: 0;
+    padding: 15px;
+  }
+  .table,
+  .card-table table {
+    min-width: 100%;
+    font-size: 0.9em;
+  }
+  form#form_surat {
+    max-width: 100%;
+    padding: 20px;
+  }
+  .sidebar ul li a {
+    font-size: 0.95em;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+  h1 {
+    font-size: 1.2em;
+  }
+  form#form_surat input,
+  form#form_surat select,
+  form#form_surat textarea {
+    padding: 8px 10px;
+  }
+  form#form_surat button {
+    padding: 8px 12px;
+    font-size: 0.95em;
+  }
+  .sidebar h3 {
+    font-size: 1.3em;
+  }
+  .sidebar ul li a {
+    font-size: 0.9em;
+  }
+}
+/* MOBILE HEADER */
+.mobile-header {
+  display: none;
+  background: #0275d8;
+  color: #fff;
+  padding: 10px 15px;
+  align-items: center;
+  justify-content: space-between;
+}
+.mobile-header h3 {
+  margin: 0;
+  font-size: 1.2em;
+}
+#menu-toggle {
+  font-size: 1.5em;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  padding: 20px;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+}
+
+/* Hide sidebar by default on mobile */
+@media screen and (max-width: 768px) {
+  .mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transform: translateX(-100%);
+    z-index: 999;
+    width: 220px;
+  }
+  .sidebar.active {
+    transform: translateX(0);
+  }
+  main.content {
+    margin-left: 0;
+    padding: 15px;
+    transition: margin-left 0.3s;
+  }
+}

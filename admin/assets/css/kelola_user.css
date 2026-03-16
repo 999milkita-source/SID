@@ -1,0 +1,403 @@
+/* ======================================
+   GLOBAL RESET
+====================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Inter, Arial, Helvetica, sans-serif;
+}
+
+body {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* ======================================
+   LAYOUT + SIDEBAR
+====================================== */
+.content {
+  margin-left: 240px; /* SESUAI LEBAR SIDEBAR */
+  padding: 24px;
+  min-height: 100vh;
+}
+.sidebar {
+  width: 220px;
+  background: #0f172a;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.btn {
+  display: inline-block;
+  padding: 9px 16px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  background: #1d4ed8;
+}
+
+.sidebar h3 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.sidebar ul {
+  list-style: none;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar ul li {
+  margin-bottom: 10px;
+}
+
+#logout {
+  margin-top: auto;
+}
+
+.sidebar ul li a {
+  color: #cbd5e1;
+  text-decoration: none;
+  display: block;
+  padding: 8px 12px;
+  border-radius: 5px;
+  transition: all 0.2s;
+}
+
+.sidebar ul li a:hover {
+  background: #1e293b;
+  color: #fff;
+}
+
+/* ======================================
+   ALERT
+====================================== */
+.ok {
+  background: #dcfce7;
+  color: #166534;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.err {
+  background: #fee2e2;
+  color: #7f1d1d;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+/* ======================================
+   TABLE
+====================================== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+}
+
+th {
+  background: #0f172a;
+  color: #fff;
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 12px;
+}
+
+td {
+  border-top: 1px solid #e5e7eb;
+  padding: 11px 12px;
+  font-size: 13px;
+}
+
+tr:hover td {
+  background: #f8fafc;
+}
+
+/* ======================================
+   ACTION BUTTON IN TABLE
+====================================== */
+td button,
+td a {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  margin-right: 4px;
+}
+
+td button {
+  background: #16a34a;
+  color: #fff;
+  border: none;
+}
+
+td a {
+  background: #dc2626;
+  color: #fff;
+}
+
+td button:hover {
+  background: #15803d;
+}
+td a:hover {
+  background: #b91c1c;
+}
+
+/* ======================================
+   MODAL
+====================================== */
+/* ======================================
+   MODAL (PRO - WIDE & SCROLL)
+====================================== */
+/* ======================================
+   MODAL FIXED
+====================================== */
+#modalUser {
+  display: none; /* WAJIB NONE */
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  z-index: 9999;
+  padding-left: 10rem;
+  align-items: center;
+  justify-content: center;
+}
+
+#modalUser.active {
+  display: flex;
+}
+
+#modalUser .modal-content {
+  background: #ffffff;
+  width: 900px; /* 🔥 LEBAR */
+  max-width: 96%;
+  max-height: 90vh; /* 🔥 BATAS TINGGI */
+  padding: 22px 26px;
+  border-radius: 16px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  animation: modalFade 0.25s ease;
+
+  overflow-y: auto; /* 🔥 SCROLL DI DALAM */
+  position: relative;
+}
+
+/* tombol close */
+#modalUser .close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  font-size: 26px;
+  cursor: pointer;
+  color: #64748b;
+}
+
+#modalUser .close:hover {
+  color: #0f172a;
+}
+/* =========================
+   SCROLL MODAL CLEAN STYLE
+========================= */
+
+/* Lebar Scroll */
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track (Background Jalur Scroll) */
+.modal-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+/* Thumb (Yang Bisa Digeser) */
+.modal-content::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 10px;
+  transition: 0.3s ease;
+}
+
+/* Hover Effect */
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+@keyframes modalFade {
+  from {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ======================================
+   FORM GRID (2 KOLOM)
+====================================== */
+#modalUser form {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 🔥 2 kolom */
+  gap: 12px 16px;
+  margin-top: 10px;
+}
+
+/* full width */
+#modalUser form textarea,
+#modalUser form button,
+#modalUser form h3 {
+  grid-column: span 2;
+}
+
+/* label */
+#modalUser label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+/* input */
+#modalUser input,
+#modalUser select,
+#modalUser textarea {
+  width: 100%;
+  padding: 9px 10px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid #cbd5f5;
+}
+
+#modalUser textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+#modalUser input:focus,
+#modalUser select:focus,
+#modalUser textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* tombol simpan */
+#modalUser button.btn {
+  margin-top: 8px;
+  padding: 11px;
+  font-size: 14px;
+}
+
+/* ======================================
+   RESPONSIVE (HP)
+====================================== */
+@media (max-width: 768px) {
+  #modalUser .modal-content {
+    width: 96%;
+    max-height: 92vh;
+  }
+
+  #modalUser form {
+    grid-template-columns: 1fr; /* jadi 1 kolom */
+  }
+
+  #modalUser form textarea,
+  #modalUser form button {
+    grid-column: span 1;
+  }
+}
+
+@keyframes modalFade {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ======================================
+   FORM
+====================================== */
+#modalUser label {
+  font-size: 12px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 3px;
+}
+
+#modalUser input,
+#modalUser select,
+#modalUser textarea {
+  width: 100%;
+  padding: 8px 9px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  border-radius: 7px;
+  border: 1px solid #cbd5f5;
+}
+
+#modalUser input:focus,
+#modalUser select:focus,
+#modalUser textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* ======================================
+   RESPONSIVE
+====================================== */
+@media (max-width: 900px) {
+  .content {
+    margin-left: 0;
+  }
+}
+/* =========================
+   GLOBAL SCROLL STYLE
+========================= */
+
+/* Lebar Scroll */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px; /* untuk horizontal */
+}
+
+/* Track (Background) */
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+/* Thumb (yang digeser) */
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 10px;
+  transition: 0.3s ease;
+}
+
+/* Hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
