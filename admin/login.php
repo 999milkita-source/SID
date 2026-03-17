@@ -1,11 +1,11 @@
 <?php
 require_once '../secure/admin_guard.php';
-require_once '../config/session.php';
+require_once '../config/config.php';
 
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $password = $_POST['password'] ?? '';
     if(admin_login($password)){
-        header('Location: index.php');
+        header('Location: ' . BASE_URL . 'admin/index.php');
         exit;
     } else {
         $error = "Password admin salah!";

@@ -1,6 +1,11 @@
 <?php
-if(!isset($_SESSION['user_id'], $_SESSION['fingerprint'])){
-    header('Location: ../public/login.php');
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../config/config.php';
+
+if (!isset($_SESSION['user_id'], $_SESSION['fingerprint']) || ($_SESSION['role'] ?? '') !== 'rw') {
+    header('Location: ' . BASE_URL . 'public/login.php');
     exit;
 }
 
@@ -9,8 +14,8 @@ $fingerprint = hash(
     $_SERVER['HTTP_USER_AGENT'] . $_SERVER['REMOTE_ADDR']
 );
 
-if($_SESSION['fingerprint'] !== $fingerprint){
+if ($_SESSION['fingerprint'] !== $fingerprint) {
     session_destroy();
-    header('Location: ../public/login.php');
+    header('Location: ' . BASE_URL . 'public/login.php');
     exit;
 }

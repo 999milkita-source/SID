@@ -31,7 +31,7 @@ $pdo->prepare("UPDATE permohonan SET status='diproses_admin' WHERE id=?")->execu
 $pdo->prepare("UPDATE permohonan SET status='ditolak_rw' WHERE id=?")->execute([$id]);
 }
 
-header("Location: verifikasi.php");
+header("Location: " . $_SERVER['PHP_SELF']);
 exit;
 }
 ?>

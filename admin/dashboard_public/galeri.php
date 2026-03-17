@@ -1,6 +1,6 @@
 <?php
-require_once '../config/config.php';
-require_once '_protect.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../_protect.php';
 
 $data = $pdo->query("SELECT * FROM galeri ORDER BY id DESC")->fetchAll();
 ?>
@@ -13,9 +13,9 @@ $data = $pdo->query("SELECT * FROM galeri ORDER BY id DESC")->fetchAll();
 </head>
 <body>
 
-<?php include 'inc/navbar.php'; ?>
+<?php include __DIR__ . '/../../public/inc/sidebar.php'; ?>
 
-<main>
+<main class="content">
 <section>
 <h2>Galeri Foto</h2>
 
@@ -28,7 +28,7 @@ $data = $pdo->query("SELECT * FROM galeri ORDER BY id DESC")->fetchAll();
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem">
 <?php foreach($data as $g): ?>
   <div>
-    <img src="../uploads/<?= $g['file'] ?>" style="width:100%;border-radius:12px">
+    <img src="<?= BASE_URL ?>storage/<?= rawurlencode($g['file']) ?>" style="width:100%;border-radius:12px">
     <p><?= htmlspecialchars($g['judul']) ?></p>
   </div>
 <?php endforeach; ?>

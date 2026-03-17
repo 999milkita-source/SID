@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once '../config/config.php';
 
 /* Hapus semua data session */
 $_SESSION = [];
@@ -22,5 +23,5 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 /* Redirect ke login */
-header('Location: ../public/login.php');
+header('Location: ' . BASE_URL . 'public/login.php');
 exit;

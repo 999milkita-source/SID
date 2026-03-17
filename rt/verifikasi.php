@@ -47,7 +47,7 @@ WHERE id=?
 
 }
 
-header("Location: verifikasi_rt.php");
+header("Location: " . $_SERVER['PHP_SELF']);
 exit;
 
 }

@@ -14,5 +14,5 @@ if ($id > 0) {
     $stmt->execute([$id]);
 }
 
-header("Location: info_desa.php?status=sukses_hapus");
+header('Location: ' . BASE_URL . 'admin/dashboard_public/info_desa.php?status=sukses_hapus');
 exit;

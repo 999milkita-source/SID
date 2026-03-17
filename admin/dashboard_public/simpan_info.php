@@ -36,7 +36,7 @@ try {
         $stmt->execute([$judul, $tipe, $urutan, $konten]);
     }
 
-  header("Location: info_desa.php?status=sukses_simpan");
+  header('Location: ' . BASE_URL . 'admin/dashboard_public/info_desa.php?status=sukses_simpan');
 exit;
 
 } catch (PDOException $e) {

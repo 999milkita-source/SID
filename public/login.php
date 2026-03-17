@@ -7,7 +7,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $password = $_POST['password'] ?? '';
 
     $stmt = $pdo->prepare("
-        SELECT id, email, password, role, nama_lengkap
+        SELECT id, email, password, role, nama_lengkap, rt, rw
         FROM users
         WHERE email = :email
         LIMIT 1
@@ -30,13 +30,13 @@ if($user && password_verify($password, $user['password'])){
 
     switch($user['role']){
         case 'penduduk':
-            header('Location: ../penduduk/index.php'); break;
+            header('Location: ' . BASE_URL . 'penduduk/index.php'); break;
         case 'rt':
-            header('Location: ../rt/index.php'); break;
+            header('Location: ' . BASE_URL . 'rt/index.php'); break;
         case 'rw':
-            header('Location: ../rw/index.php'); break;
+            header('Location: ' . BASE_URL . 'rw/index.php'); break;
         case 'kades':
-            header('Location: ../kades/index.php'); break;
+            header('Location: ' . BASE_URL . 'kades/index.php'); break;
         default:
             session_destroy();
             die('Role tidak valid');

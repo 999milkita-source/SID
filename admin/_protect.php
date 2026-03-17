@@ -1,20 +1,20 @@
 <?php
-// _protect.php - Middleware proteksi admin
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../config/config.php';
 
-// Logout jika session tidak valid
-if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin'){
-    header('Location: /public/login.php');
+$isAdminRole = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+$isAdminFlag = !empty($_SESSION['is_admin']);
+
+if (!$isAdminRole && !$isAdminFlag) {
+    header('Location: ' . BASE_URL . 'public/login.php');
     exit;
 }
 
-// Cek fingerprint (User-Agent + IP)
 $fingerprint = hash('sha256', $_SERVER['HTTP_USER_AGENT'] . $_SERVER['REMOTE_ADDR']);
-if(!isset($_SESSION['fingerprint']) || $_SESSION['fingerprint'] !== $fingerprint){
+if (!isset($_SESSION['fingerprint']) || $_SESSION['fingerprint'] !== $fingerprint) {
     session_destroy();
-    header('Location: /public/login.php');
+    header('Location: ' . BASE_URL . 'public/login.php');
     exit;
 }
-
-// Regenerate session id setiap akses halaman
-session_regenerate_id(true);
