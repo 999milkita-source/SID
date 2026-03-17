@@ -55,11 +55,8 @@ $params = array_values($data);
    CEK JIKA GANTI PASSWORD
 ============================= */
 if (!empty($_POST['password'])) {
-
-    if (!empty($_POST['password'])) {
     $sql .= ", password=?";
     $params[] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-}
 }
 
 /* =============================
@@ -137,7 +134,9 @@ Swal.fire({icon:'error',title:'Gagal',text:'<?= $error ?>'});
 <td><?= $u['nik'] ?></td>
 <td><?= htmlspecialchars($u['nama_lengkap']) ?></td>
 <td><?= $u['tempat_lahir'].', '.$u['tanggal_lahir'] ?></td>
-<td><?= $u['jenis_kelamin'] ?></td>
+<td>
+<?= $u['jenis_kelamin'] == 'L' ? 'Laki-laki' : ($u['jenis_kelamin'] == 'P' ? 'Perempuan' : '-') ?>
+</td>
 <td><?= htmlspecialchars($u['alamat']) ?></td>
 <td><?= $u['rt'].'/'.$u['rw'] ?></td>
 <td><?= $u['no_hp'] ?></td>
@@ -145,7 +144,7 @@ Swal.fire({icon:'error',title:'Gagal',text:'<?= $error ?>'});
 <td><?= strtoupper($u['role']) ?></td>
 <td>
     
-<button onclick='openEdit(<?= json_encode($u) ?>)'>Edit</button>
+<button onclick='openEdit(<?= json_encode($u, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'>Edit</button>
 <form method="post" style="display:inline">
 <input type="hidden" name="hapus" value="<?= $u['id'] ?>">
 <button onclick="return confirm('Hapus data?')">Hapus</button>
