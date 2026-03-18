@@ -50,20 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Email atau password salah!';
     }
 } else {
-    // Jika sudah login, arahkan ke dashboard sesuai role
-    if (isset($_SESSION['user_id'], $_SESSION['role'])) {
-        switch ($_SESSION['role']) {
-            case 'admin': header('Location: ../admin/index.php'); exit;
-            case 'penduduk': header('Location: ../penduduk/index.php'); exit;
-            case 'rt': header('Location: ../rt/index.php'); exit;
-            case 'rw': header('Location: ../rw/index.php'); exit;
-            case 'kades': header('Location: ../kades/index.php'); exit;
-            default:
-                session_unset();
-                session_destroy();
-                break;
-        }
-    }
+    // Selalu tampilkan form login untuk login user lain. Login akan menimpa session lama.
+    // Tidak auto-redirect untuk tetap bisa ganti akun.
 }
 ?>
 <!DOCTYPE html>
@@ -90,6 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <button type="submit">Login</button>
         </form>
+        <?php if (isset($_SESSION['user_id'])): ?>
+            <p style="margin-top:12px; font-size:0.9rem; color:#666;">Sedang login sebagai <strong><?= htmlspecialchars($_SESSION['role']) ?></strong>. Isi lagi untuk login akun lain.</p>
+        <?php endif; ?>
     </div>
 </div>
 <script src="https://unpkg.com/feather-icons"></script>

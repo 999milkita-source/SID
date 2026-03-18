@@ -56,6 +56,7 @@ a:hover {
 main.content {
   margin-left: 240px;
   padding: 20px;
+  margin-top: 0;
 }
 h1 {
   font-size: 1.8em;
@@ -258,6 +259,14 @@ p.error {
   }
   h1 {
     font-size: 1.5em;
+  }
+  main.content {
+    margin-left: 0;
+  }
+  .sidebar {
+    width: 100%;
+    position: relative;
+    height: auto;
   }
   .sidebar {
     width: 180px;

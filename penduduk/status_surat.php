@@ -1,8 +1,8 @@
 <?php
-session_start();
 require_once '../config/config.php';
 require_once '../config/auth.php';
 
+ensure_session_started();
 check_login();
 require_role('penduduk');
 $user_id = (int) $_SESSION['user_id'];

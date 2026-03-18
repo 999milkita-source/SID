@@ -55,7 +55,8 @@ a:hover {
 /* MAIN CONTENT */
 main.content {
   margin-left: 240px;
-  padding: 20px;
+  padding: 20px 20px 24px;
+  margin-top: 0;
 }
 h1 {
   font-size: 1.8em;
@@ -325,6 +326,25 @@ p.error {
     font-size: 0.9em;
   }
 }
+
+/* layout fix */
+main.content {
+  margin-left: 240px;
+  transition: margin-left 0.3s ease;
+}
+
+@media screen and (max-width: 992px) {
+  main.content {
+    margin-left: 0;
+  }
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    transform: none !important;
+  }
+}
+
 /* MOBILE HEADER */
 .mobile-header {
   display: none;

@@ -2,12 +2,10 @@
 require_once __DIR__ . '/../../config/config.php';
 require_once '../../config/auth.php';
 
+ensure_session_started();
+set_security_headers();
 check_login();
 require_role('admin');
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 $id     = $_POST['id'] ?? '';
 $judul  = trim($_POST['judul'] ?? '');

@@ -78,16 +78,18 @@ function check_login(): bool {
 function require_role(string $role): void {
     check_login();
     if (!isset($_SESSION['role']) || $_SESSION['role'] !== $role) {
-        http_response_code(403);
-        exit('Akses ditolak: tidak punya hak akses');
+        session_unset();
+        session_destroy();
+        redirect_to_login();
     }
 }
 
 function require_roles(array $roles): void {
     check_login();
     if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $roles, true)) {
-        http_response_code(403);
-        exit('Akses ditolak: tidak punya hak akses');
+        session_unset();
+        session_destroy();
+        redirect_to_login();
     }
 }
 
