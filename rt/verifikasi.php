@@ -1,12 +1,12 @@
 <?php
-session_start();
 require_once '../config/config.php';
-require_once '_protect.php';
+require_once '../config/auth.php';
+ensure_session_started();
+set_security_headers();
+check_login();
+require_role('rt');
 
-if ($_SESSION['role'] !== 'rt') {
-    die("Akses ditolak");
-}
-
+$csrf_token = generate_csrf_token();
 $user_rt = (int) $_SESSION['rt'];
 
 // Ambil permohonan warga sesuai RT
@@ -24,32 +24,28 @@ $stmt->execute(['rt'=>$user_rt]);
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // proses verifikasi
-if($_SERVER['REQUEST_METHOD']=='POST'){
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $csrf = $_POST['csrf_token'] ?? '';
+    if (!verify_csrf_token($csrf)) {
+        http_response_code(400);
+        exit('Token CSRF tidak valid.');
+    }
 
-$id=(int)$_POST['id'];
-$aksi=$_POST['aksi'];
+    $id = (int)($_POST['id'] ?? 0);
+    $aksi = $_POST['aksi'] ?? '';
 
-if($aksi=='setujui'){
+    if ($id > 0) {
+        if ($aksi === 'setujui') {
+            $stmt = $pdo->prepare("UPDATE permohonan SET status = :status WHERE id = :id");
+            $stmt->execute([':status' => 'menunggu_rw', ':id' => $id]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE permohonan SET status = :status WHERE id = :id");
+            $stmt->execute([':status' => 'ditolak_rt', ':id' => $id]);
+        }
+    }
 
-$pdo->prepare("
-UPDATE permohonan 
-SET status='menunggu_rw'
-WHERE id=?
-")->execute([$id]);
-
-}else{
-
-$pdo->prepare("
-UPDATE permohonan 
-SET status='ditolak_rt'
-WHERE id=?
-")->execute([$id]);
-
-}
-
-header("Location: verifikasi_rt.php");
-exit;
-
+    header("Location: verifikasi.php");
+    exit;
 }
 ?>
 <!DOCTYPE html>

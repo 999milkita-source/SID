@@ -1,8 +1,5 @@
 <?php
-function logout(){
-    session_start();
-    session_unset();
-    session_destroy();
-    header('Location: ../public/login.php');
-    exit;
-}
+require_once __DIR__ . '/../../config/auth.php';
+
+// Helper file: use logout() defined in config/auth.php.
+

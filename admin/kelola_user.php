@@ -1,6 +1,9 @@
 <?php
 require_once '../config/config.php';
-require_once '_protect.php';
+require_once '../config/auth.php';
+
+check_login();
+require_role('admin');
 
 $success = $error = null;
 

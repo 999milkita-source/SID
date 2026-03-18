@@ -1,65 +1,78 @@
 <?php
-session_start();
 require_once '../config/config.php';
-require_once '_protect.php';
+require_once '../config/auth.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../public/login.php');
-    exit;
-}
+ensure_session_started();
+set_security_headers();
+check_login();
+require_role('penduduk');
 
-$user_id = (int) $_SESSION['user_id'];
+$user_id = (int) ($_SESSION['user_id'] ?? 0);
 $success = $error = null;
 
+$csrf_token = generate_csrf_token();
+
 // PROSES SUBMIT SURAT
-if($_SERVER['REQUEST_METHOD']==='POST'){
-    $jenis_surat = trim($_POST['jenis_surat'] ?? '');
-    $keperluan   = trim($_POST['keperluan'] ?? '');
-    $tujuan      = trim($_POST['tujuan'] ?? '');
-    $keterangan  = trim($_POST['keterangan'] ?? '');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $csrf = $_POST['csrf_token'] ?? '';
+    if (!verify_csrf_token($csrf)) {
+        $error = 'Token CSRF tidak valid.';
+    } else {
+        $jenis_surat = trim($_POST['jenis_surat'] ?? '');
+        $keperluan   = trim($_POST['keperluan'] ?? '');
+        $tujuan      = trim($_POST['tujuan'] ?? '');
+        $keterangan  = trim($_POST['keterangan'] ?? '');
+
+    $allowedJenis = ['Surat Keterangan Domisili', 'Surat Keterangan Usaha', 'Surat Keterangan Tidak Mampu'];
+    if (!in_array($jenis_surat, $allowedJenis, true)) {
+        $error = 'Jenis surat tidak valid.';
+    }
 
     $file_uploads = [];
-    if(isset($_FILES['file_upload'])){
+    if (empty($error) && isset($_FILES['file_upload'])) {
         foreach($_FILES['file_upload']['tmp_name'] as $key=>$tmpPath){
             if($_FILES['file_upload']['error'][$key]===UPLOAD_ERR_OK){
-                $fileName = $_FILES['file_upload']['name'][$key];
+                $fileName = basename($_FILES['file_upload']['name'][$key]);
                 $fileExt  = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
                 $fileSize = $_FILES['file_upload']['size'][$key];
                 $allowed  = ['pdf','jpg','jpeg','png'];
                 $maxSize  = 5*1024*1024;
-                if(!in_array($fileExt,$allowed)){ $error="Tipe file tidak diperbolehkan"; break; }
+                if(!in_array($fileExt,$allowed, true)){ $error="Tipe file tidak diperbolehkan"; break; }
                 if($fileSize>$maxSize){ $error="Ukuran file maksimal 5MB"; break; }
 
-                $newFileName = uniqid().'_'.$fileName;
-                if(move_uploaded_file($tmpPath,'../storage/'.$newFileName)){
+                $newFileName = uniqid('', true).'_'.preg_replace('/[^A-Za-z0-9._-]/', '_', $fileName);
+                if(move_uploaded_file($tmpPath, '../storage/'.$newFileName)){
                     $file_uploads[] = $newFileName;
                 } else { $error="Gagal upload file $fileName"; break; }
             }
         }
     }
 
-    $file_upload = implode(',',$file_uploads);
+    $file_upload = implode(',', $file_uploads);
 
-    if(!$error && $jenis_surat && $keperluan){
-        try{
+    if (!$error && $jenis_surat && $keperluan) {
+        try {
             $pdo->beginTransaction();
-            $stmt = $pdo->prepare("
-INSERT INTO permohonan 
-(user_id, jenis_surat, keterangan, file_upload, status) 
-VALUES (:uid,:jenis,:ket,:file,'menunggu_rt')
-");
+            $stmt = $pdo->prepare("INSERT INTO permohonan (user_id, jenis_surat, keterangan, file_upload, status) VALUES (:uid,:jenis,:ket,:file,'menunggu_rt')");
             $stmt->execute([
-                'uid'=>$user_id,
-                'jenis'=>$jenis_surat,
-                'ket'=>"Keperluan: $keperluan | Tujuan: $tujuan | $keterangan",
-                'file'=>$file_upload
+                ':uid' => $user_id,
+                ':jenis' => $jenis_surat,
+                ':ket' => "Keperluan: " . $keperluan . " | Tujuan: " . $tujuan . " | " . $keterangan,
+                ':file' => $file_upload
             ]);
             $permohonan_id = $pdo->lastInsertId();
-            $pdo->prepare("INSERT INTO laporan (permohonan_id) VALUES (:pid)")->execute(['pid'=>$permohonan_id]);
+            $stmt2 = $pdo->prepare("INSERT INTO laporan (permohonan_id) VALUES (:pid)");
+            $stmt2->execute([':pid' => $permohonan_id]);
             $pdo->commit();
-            $success="Surat berhasil diajukan dan menunggu persetujuan RT.";
-        } catch(Exception $e){ $pdo->rollBack(); $error="Gagal mengajukan surat."; }
-    } elseif(!$error){ $error="Jenis surat dan keperluan wajib diisi."; }
+            $success = "Surat berhasil diajukan dan menunggu persetujuan RT.";
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            $error = "Gagal mengajukan surat.";
+        }
+    } elseif (!$error) {
+        $error = "Jenis surat dan keperluan wajib diisi.";
+    }
+  }
 }
 
 /* Ambil data surat sebelumnya */
@@ -85,6 +98,7 @@ $surat_list = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 <?php if($error): ?><p class="error"><?= htmlspecialchars($error) ?></p><?php endif; ?>
 
 <form id="form_surat" method="POST" enctype="multipart/form-data">
+<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
 <label>Jenis Surat</label>
 <select name="jenis_surat" id="jenis_surat" required>
 <option value="">-- Pilih --</option>

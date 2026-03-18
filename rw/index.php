@@ -1,39 +1,56 @@
 <?php
 session_start();
 require_once '../config/config.php';
-require_once '_protect.php';
+require_once '../config/auth.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../public/login.php');
-    exit;
-}
+check_login();
+require_role('rw');
 
-$user_id = (int) $_SESSION['user_id'];
+$user_rw = (int) $_SESSION['rw'];
 
+$stmt = $pdo->prepare("SELECT p.id, p.jenis_surat, p.status, p.created_at, u.nama_lengkap FROM permohonan p JOIN users u ON p.user_id=u.id WHERE u.rw=:rw AND p.status='menunggu_rw' ORDER BY p.created_at DESC");
+$stmt->execute(['rw' => $user_rw]);
+$surat_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard RW - SID Wolokota</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 <?php include '../public/inc/sidebar.php'; ?>
 
-<main>
-    <h1>Selamat datang, RW!</h1>
-    <p>Surat pending verifikasi RW:</p>
-    <?php
-    $rw_no = 1; // contoh RW
-    $stmt = $pdo->prepare("SELECT p.*, u.nama_lengkap FROM permohonan p JOIN users u ON p.user_id=u.id WHERE status='diterima_rt' AND u.rw=:rw");
-    $stmt->execute(['rw'=>$rw_no]);
-    $surat_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    ?>
-    <ul>
-        <?php foreach($surat_list as $s): ?>
-            <li><?= htmlspecialchars($s['nama_lengkap']) ?> - <?= htmlspecialchars($s['jenis_surat']) ?></li>
-        <?php endforeach; ?>
-    </ul>
+<main class="content">
+    <h1>Dashboard RW</h1>
+    <p>Selamat datang, <?= htmlspecialchars($_SESSION['nama_lengkap'] ?? 'RW') ?></p>
+    <p>Surat yang menunggu verifikasi RW</p>
+    <a href="verifikasi.php" class="btn">Ke halaman verifikasi</a>
+
+    <div class="card">
+        <table class="table">
+            <tr>
+                <th>Nama</th>
+                <th>Jenis Surat</th>
+                <th>Status</th>
+                <th>Tanggal</th>
+            </tr>
+            <?php if(empty($surat_list)): ?>
+            <tr><td colspan="4" style="text-align:center;">Tidak ada permohonan yang menunggu</td></tr>
+            <?php else: foreach($surat_list as $s): ?>
+            <tr>
+                <td><?= htmlspecialchars($s['nama_lengkap']) ?></td>
+                <td><?= htmlspecialchars($s['jenis_surat']) ?></td>
+                <td><?= htmlspecialchars(str_replace('_',' ',$s['status'])) ?></td>
+                <td><?= date('d-m-Y H:i', strtotime($s['created_at'])) ?></td>
+            </tr>
+            <?php endforeach; endif; ?>
+        </table>
+    </div>
 </main>
+
+<script src="assets/js/sidebar.js"></script>
 </body>
 </html>

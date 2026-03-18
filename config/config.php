@@ -15,6 +15,12 @@ try {
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
 }
+
+// Secure session cookie defaults
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.use_strict_mode', 1);
+
 define('BASE_URL', '/sidwolokota/');
 
 $storage_path = "../storage/";

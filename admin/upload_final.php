@@ -1,6 +1,10 @@
 <?php
-require_once '../admin/_protect.php';
+
 require_once '../config/config.php';
+require_once '../config/auth.php';
+
+check_login();
+require_role('admin');
 
 if($_SERVER['REQUEST_METHOD']==='POST' && isset($_FILES['file_surat'])){
     $permohonan_id = $_POST['permohonan_id'];

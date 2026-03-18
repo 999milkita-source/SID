@@ -1,5 +1,9 @@
     <?php
     require_once '../config/config.php';
+    require_once '../../config/auth.php';
+
+check_login();
+require_role('admin');
 
     $judul = $_POST['judul'];
     $file = $_FILES['foto'];

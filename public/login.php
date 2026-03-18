@@ -1,51 +1,68 @@
-<?php
-session_start();
+﻿<?php
 require_once '../config/config.php';
+require_once '../config/auth.php';
 
-if($_SERVER['REQUEST_METHOD'] === 'POST'){
-    $email    = trim($_POST['email'] ?? '');
+ensure_session_started();
+set_security_headers();
+
+$csrf_token = generate_csrf_token();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = strtolower(trim($_POST['email'] ?? ''));
     $password = $_POST['password'] ?? '';
+    $csrf = $_POST['csrf_token'] ?? '';
 
-    $stmt = $pdo->prepare("
-        SELECT id, email, password, role, nama_lengkap
-        FROM users
-        WHERE email = :email
-        LIMIT 1
-    ");
-    $stmt->execute(['email' => $email]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-if($user && password_verify($password, $user['password'])){
-    session_regenerate_id(true);
+    if (!verify_csrf_token($csrf)) {
+        $error = 'Token CSRF tidak valid.';
+    } elseif ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Email tidak valid.';
+    } elseif ($password === '') {
+        $error = 'Password tidak boleh kosong.';
+    } else {
+        $stmt = $pdo->prepare('SELECT id, email, password, role, nama_lengkap, rt, rw FROM users WHERE email = :email LIMIT 1');
+        $stmt->execute(['email' => $email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['role']    = $user['role'];
-    $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
-    $_SESSION['rt'] = $user['rt'];
-    $_SESSION['rw'] = $user['rw'];
+        if ($user && password_verify($password, $user['password'])) {
+            session_regenerate_id(true);
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
+            $_SESSION['rt'] = $user['rt'] ?? null;
+            $_SESSION['rw'] = $user['rw'] ?? null;
+            $_SESSION['fingerprint'] = hash('sha256', $_SERVER['HTTP_USER_AGENT'] ?? '');
 
-    $_SESSION['fingerprint'] = hash(
-        'sha256',
-        $_SERVER['HTTP_USER_AGENT'] . $_SERVER['REMOTE_ADDR']
-    );
+            switch ($user['role']) {
+                case 'admin': header('Location: ../admin/index.php'); break;
+                case 'penduduk': header('Location: ../penduduk/index.php'); break;
+                case 'rt': header('Location: ../rt/index.php'); break;
+                case 'rw': header('Location: ../rw/index.php'); break;
+                case 'kades': header('Location: ../kades/index.php'); break;
+                default:
+                    session_unset();
+                    session_destroy();
+                    $error = 'Role pengguna tidak valid.';
+                    break;
+            }
+            exit;
+        }
 
-    switch($user['role']){
-        case 'penduduk':
-            header('Location: ../penduduk/index.php'); break;
-        case 'rt':
-            header('Location: ../rt/index.php'); break;
-        case 'rw':
-            header('Location: ../rw/index.php'); break;
-        case 'kades':
-            header('Location: ../kades/index.php'); break;
-        default:
-            session_destroy();
-            die('Role tidak valid');
+        $error = 'Email atau password salah!';
     }
-    exit;
-}
-
-    else {
-        $error = "Email atau password salah!";
+} else {
+    // Jika sudah login, arahkan ke dashboard sesuai role
+    if (isset($_SESSION['user_id'], $_SESSION['role'])) {
+        switch ($_SESSION['role']) {
+            case 'admin': header('Location: ../admin/index.php'); exit;
+            case 'penduduk': header('Location: ../penduduk/index.php'); exit;
+            case 'rt': header('Location: ../rt/index.php'); exit;
+            case 'rw': header('Location: ../rw/index.php'); exit;
+            case 'kades': header('Location: ../kades/index.php'); exit;
+            default:
+                session_unset();
+                session_destroy();
+                break;
+        }
     }
 }
 ?>
@@ -59,16 +76,36 @@ if($user && password_verify($password, $user['password'])){
 <div class="publiclogin">
     <div class="formlogin">
         <h2>Login</h2>
-        <?php if(isset($error)): ?>
+        <?php if (!empty($error)): ?>
             <p style="color:red;"><?= htmlspecialchars($error) ?></p>
         <?php endif; ?>
-
-        <form method="POST">
+        <form method="POST" novalidate>
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
+            <div class="password-field">
+                <input id="password" type="password" name="password" placeholder="Password" required>
+                <button type="button" class="toggle-password" aria-label="Tampilkan password">
+                    <i data-feather="eye"></i>
+                </button>
+            </div>
             <button type="submit">Login</button>
         </form>
     </div>
 </div>
+<script src="https://unpkg.com/feather-icons"></script>
+<script>
+    feather.replace();
+    const toggleBtn = document.querySelector('.toggle-password');
+    const pwd = document.getElementById('password');
+    if (toggleBtn && pwd) {
+        toggleBtn.addEventListener('click', () => {
+            const type = pwd.getAttribute('type') === 'password' ? 'text' : 'password';
+            pwd.setAttribute('type', type);
+            const icon = toggleBtn.querySelector('i');
+            if (icon) { icon.dataset.feather = type === 'text' ? 'eye-off' : 'eye'; }
+            feather.replace();
+        });
+    }
+</script>
 </body>
 </html>
