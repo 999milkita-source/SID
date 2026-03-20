@@ -11,9 +11,31 @@ function get_login_url(): string {
     return rtrim(BASE_URL, '/') . '/public/login.php';
 }
 
+function get_role_home_url(?string $role = null): string {
+    $baseUrl = rtrim(BASE_URL, '/');
+    $role = $role ?? ($_SESSION['role'] ?? null);
+
+    $roleHomes = [
+        'admin' => $baseUrl . '/admin/index.php',
+        'penduduk' => $baseUrl . '/penduduk/index.php',
+        'rt' => $baseUrl . '/rt/index.php',
+        'rw' => $baseUrl . '/rw/index.php',
+        'kades' => $baseUrl . '/kades/index.php',
+    ];
+
+    return $roleHomes[$role] ?? get_login_url();
+}
+
 function redirect_to_login(): void {
     if (!headers_sent()) {
         header('Location: ' . get_login_url());
+    }
+    exit;
+}
+
+function redirect_to_role_home(?string $role = null): void {
+    if (!headers_sent()) {
+        header('Location: ' . get_role_home_url($role));
     }
     exit;
 }
@@ -77,19 +99,23 @@ function check_login(): bool {
 
 function require_role(string $role): void {
     check_login();
-    if (!isset($_SESSION['role']) || $_SESSION['role'] !== $role) {
-        session_unset();
-        session_destroy();
+    if (!isset($_SESSION['role'])) {
         redirect_to_login();
+    }
+
+    if ($_SESSION['role'] !== $role) {
+        redirect_to_role_home($_SESSION['role']);
     }
 }
 
 function require_roles(array $roles): void {
     check_login();
-    if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $roles, true)) {
-        session_unset();
-        session_destroy();
+    if (!isset($_SESSION['role'])) {
         redirect_to_login();
+    }
+
+    if (!in_array($_SESSION['role'], $roles, true)) {
+        redirect_to_role_home($_SESSION['role']);
     }
 }
 
@@ -118,4 +144,3 @@ function logout(): void {
     }
     exit;
 }
-

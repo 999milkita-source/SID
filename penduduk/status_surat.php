@@ -15,6 +15,62 @@ ORDER BY created_at DESC
 ");
 $stmt->execute(['uid'=>$user_id]);
 $surat_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+function build_file_url(string $filename, bool $preview = false): string {
+    $params = ['file' => $filename];
+    if ($preview) {
+        $params['mode'] = 'preview';
+    }
+
+    return '../public/inc/download.php?' . http_build_query($params);
+}
+
+function get_file_extension(string $filename): string {
+    return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+}
+
+function is_image_file(string $filename): bool {
+    return in_array(get_file_extension($filename), ['jpg', 'jpeg', 'png', 'gif', 'webp'], true);
+}
+
+function render_preview_tile(string $filename): string {
+    $previewUrl = build_file_url($filename, true);
+    $downloadUrl = build_file_url($filename);
+    $isImage = is_image_file($filename);
+    $extension = strtoupper(get_file_extension($filename) ?: 'FILE');
+    $metaLabel = $isImage ? 'Gambar siap dilihat' : 'Dokumen ' . $extension;
+
+    ob_start();
+    ?>
+    <button
+        type="button"
+        class="file-preview-card preview-trigger <?= $isImage ? 'is-image' : 'is-document' ?>"
+        data-preview-url="<?= htmlspecialchars($previewUrl) ?>"
+        data-download-url="<?= htmlspecialchars($downloadUrl) ?>"
+        data-filename="<?= htmlspecialchars($filename) ?>"
+        data-filetype="<?= htmlspecialchars(get_file_extension($filename)) ?>"
+    >
+        <span class="preview-card-media">
+            <?php if ($isImage): ?>
+            <img src="<?= htmlspecialchars($previewUrl) ?>" alt="<?= htmlspecialchars($filename) ?>" loading="lazy">
+            <?php else: ?>
+            <span class="document-chip"><?= htmlspecialchars($extension) ?></span>
+            <span class="document-hint">Klik untuk melihat dokumen</span>
+            <?php endif; ?>
+            <span class="preview-card-tag">
+                <i data-feather="eye"></i>
+                Lihat File
+            </span>
+        </span>
+        <span class="preview-card-body">
+            <span class="preview-card-name"><?= htmlspecialchars($filename) ?></span>
+            <span class="preview-card-meta"><?= htmlspecialchars($metaLabel) ?></span>
+        </span>
+    </button>
+    <?php
+
+    return trim(ob_get_clean());
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -24,6 +80,7 @@ $surat_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <title>Status Surat - SID Wolokota</title>
 <link rel="stylesheet" href="assets/css/style.css">
 <link rel="stylesheet" href="assets/css/status_surat.css">
+<script src="https://unpkg.com/feather-icons"></script>
 </head>
 <body>
 <?php include '../public/inc/sidebar.php'; ?>
@@ -40,7 +97,7 @@ $surat_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <th>Surat Jadi</th>
 </tr>
 <?php if(empty($surat_list)): ?>
-<tr><td colspan="4" style="text-align:center;">Belum ada permohonan surat</td></tr>
+<tr><td colspan="5" style="text-align:center;">Belum ada permohonan surat</td></tr>
 <?php else: foreach($surat_list as $s): ?>
 <tr>
 
@@ -56,13 +113,13 @@ $surat_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <td>
 <?php if($s['file_upload']):
-$files = explode(',', $s['file_upload']); ?>
+$files = array_filter(array_map('trim', explode(',', $s['file_upload']))); ?>
 
+<div class="file-preview-grid">
 <?php foreach($files as $f): ?>
-<a href="../public/inc/download.php?file=<?= rawurlencode($f) ?>" target="_blank">
-Download <?= htmlspecialchars($f) ?>
-</a><br>
+<?= render_preview_tile($f) ?>
 <?php endforeach; ?>
+</div>
 
 <?php else: ?>-<?php endif; ?>
 </td>
@@ -71,13 +128,9 @@ Download <?= htmlspecialchars($f) ?>
 
 <?php if(!empty($s['file_surat_admin'])): ?>
 
-<a class="btn-download"
-href="../public/inc/download.php?file=<?= rawurlencode($s['file_surat_admin']) ?>"
-target="_blank">
-
-Download Surat
-
-</a>
+<div class="file-preview-grid">
+<?= render_preview_tile($s['file_surat_admin']) ?>
+</div>
 
 <?php else: ?>
 
@@ -92,11 +145,21 @@ Belum tersedia
 </div>
 </main>
 
-<!-- Lightbox -->
-<div id="lightbox" class="lightbox">
-    <span class="close">&times;</span>
-    <img class="lightbox-content" id="lightbox-img">
-    <a id="lightbox-download" class="download-btn" href="#" download>Download</a>
+<div id="previewModal" class="preview-modal" hidden>
+    <div class="preview-dialog">
+        <div class="preview-header">
+            <h3 id="previewTitle">Lihat File</h3>
+            <div class="preview-toolbar">
+                <a id="previewDownloadLink" class="modal-icon-btn" href="#" target="_blank" aria-label="Download file" title="Download">
+                    <i data-feather="download"></i>
+                </a>
+                <button type="button" id="closePreview" class="modal-icon-btn" aria-label="Tutup preview" title="Tutup">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+        </div>
+        <div id="previewBody" class="preview-body"></div>
+    </div>
 </div>
 
 <script src="assets/js/ajukan_surat.js"></script>

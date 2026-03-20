@@ -21,10 +21,16 @@ $profil = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <?php include 'inc/navbar.php'; ?>
 
 <main>
+    <!-- Hero Section for Index -->
+    <section class="hero">
+        <h1>Selamat Datang di Desa Wolokota</h1>
+        <p>Sistem Informasi Desa Wolokota menyediakan pelayanan terpadu untuk warga. Ajukan surat online, lihat profil desa, galeri kegiatan, dan informasi terkini.</p>
+    </section>
+    
     <?php foreach($profil as $section): ?>
         <section class="card">
             <h2><?= htmlspecialchars($section['judul']) ?></h2>
-            <p><?= nl2br(htmlspecialchars($section['konten'])) ?></p>
+            <div><?= nl2br(htmlspecialchars($section['konten'])) ?></div>
         </section>
     <?php endforeach; ?>
 </main>

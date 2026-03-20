@@ -116,9 +116,10 @@ WHERE id = :id
 
 
 /* ==========================
-   Ambil semua permohonan
+   Ambil permohonan (Proses & Arsip)
 ========================== */
 
+// Proses: semua yang belum selesai
 $stmt = $pdo->query("
     SELECT 
         p.id,
@@ -131,10 +132,84 @@ $stmt = $pdo->query("
         p.created_at
     FROM permohonan p
     JOIN users u ON p.user_id = u.id
+    WHERE p.status <> 'selesai'
     ORDER BY p.created_at DESC
 ");
+$permohonan_proses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$permohonan_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Arsip: yang sudah selesai
+$stmt = $pdo->query("
+    SELECT 
+        p.id,
+        u.nama_lengkap,
+        p.jenis_surat,
+        p.keterangan,
+        p.status,
+        p.file_upload,
+        p.file_surat_admin,
+        p.created_at
+    FROM permohonan p
+    JOIN users u ON p.user_id = u.id
+    WHERE p.status = 'selesai'
+    ORDER BY p.created_at DESC
+");
+$permohonan_arsip = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+function build_file_url(string $filename, bool $preview = false): string {
+    $params = ['file' => $filename];
+    if ($preview) {
+        $params['mode'] = 'preview';
+    }
+
+    return '../public/inc/download.php?' . http_build_query($params);
+}
+
+function get_file_extension(string $filename): string {
+    return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+}
+
+function is_image_file(string $filename): bool {
+    return in_array(get_file_extension($filename), ['jpg', 'jpeg', 'png', 'gif', 'webp'], true);
+}
+
+function render_preview_tile(string $filename): string {
+    $previewUrl = build_file_url($filename, true);
+    $downloadUrl = build_file_url($filename);
+    $isImage = is_image_file($filename);
+    $extension = strtoupper(get_file_extension($filename) ?: 'FILE');
+    $metaLabel = $isImage ? 'Gambar siap dilihat' : 'Dokumen ' . $extension;
+
+    ob_start();
+    ?>
+    <button
+        type="button"
+        class="file-preview-card preview-trigger <?= $isImage ? 'is-image' : 'is-document' ?>"
+        data-preview-url="<?= htmlspecialchars($previewUrl) ?>"
+        data-download-url="<?= htmlspecialchars($downloadUrl) ?>"
+        data-filename="<?= htmlspecialchars($filename) ?>"
+        data-filetype="<?= htmlspecialchars(get_file_extension($filename)) ?>"
+    >
+        <span class="preview-card-media">
+            <?php if ($isImage): ?>
+            <img src="<?= htmlspecialchars($previewUrl) ?>" alt="<?= htmlspecialchars($filename) ?>" loading="lazy">
+            <?php else: ?>
+            <span class="document-chip"><?= htmlspecialchars($extension) ?></span>
+            <span class="document-hint">Klik untuk melihat dokumen</span>
+            <?php endif; ?>
+            <span class="preview-card-tag">
+                <i data-feather="eye"></i>
+                Lihat File
+            </span>
+        </span>
+        <span class="preview-card-body">
+            <span class="preview-card-name"><?= htmlspecialchars($filename) ?></span>
+            <span class="preview-card-meta"><?= htmlspecialchars($metaLabel) ?></span>
+        </span>
+    </button>
+    <?php
+
+    return trim(ob_get_clean());
+}
 
 ?>
 
@@ -147,20 +222,13 @@ $permohonan_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <link rel="stylesheet" href="assets/css/kelola_surat.css">
 
-<style>
-table img{
-max-width:80px;
-max-height:80px;
-display:block;
-margin-bottom:5px;
-}
-button{
-margin-top:5px;
-}
-</style>
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<script src="https://unpkg.com/feather-icons"></script>
+<style>
+    .tabs { display:flex; gap:.5rem; margin:.75rem 0 1rem; }
+    .tab-link { border:0; padding:.5rem .9rem; cursor:pointer; border-radius:.5rem; background:#e5e7eb; color:#111827; }
+    .tab-link.active { background:#2563eb; color:#fff; }
+</style>
 </head>
 
 <body>
@@ -197,7 +265,12 @@ text:'<?= $error ?>'
 </script>
 <?php endif; ?>
 
+<div class="tabs">
+    <button type="button" class="tab-link active" data-target="tab-proses">Proses</button>
+    <button type="button" class="tab-link" data-target="tab-arsip">Arsip</button>
+</div>
 
+<div id="tab-proses" class="tab-content" style="display:block;">
 <table border="1" cellpadding="5" cellspacing="0">
 
 <tr>
@@ -211,115 +284,147 @@ text:'<?= $error ?>'
 <th>Aksi</th>
 </tr>
 
-
-<?php foreach($permohonan_list as $p): ?>
-
+<?php foreach($permohonan_proses as $p): ?>
 <tr>
-
 <td><?= $p['id'] ?></td>
-
 <td><?= htmlspecialchars($p['nama_lengkap']) ?></td>
-
 <td><?= htmlspecialchars($p['jenis_surat']) ?></td>
-
 <td><?= htmlspecialchars($p['keterangan']) ?></td>
-
 <td><?= htmlspecialchars($p['status']) ?></td>
-
-
 <td>
-
 <?php if($p['file_upload']):
-$files = explode(',', $p['file_upload']); ?>
-
-<div class="file-grid">
-
-<?php foreach($files as $f):
-
-$ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
-$file_url = $storage_url.rawurlencode($f);
-
-if(in_array($ext,['jpg','jpeg','png'])): ?>
-
-<img src="<?= $file_url ?>" class="lightbox-trigger" data-file="<?= $file_url ?>">
-
-<?php else: ?>
-
-<a href="<?= $file_url ?>" target="_blank"><?= htmlspecialchars($f) ?></a>
-
-<?php endif; ?>
-
+$files = array_filter(array_map('trim', explode(',', $p['file_upload']))); ?>
+<div class="file-preview-grid">
+<?php foreach($files as $f): ?>
+<?= render_preview_tile($f) ?>
 <?php endforeach; ?>
-
 </div>
-
 <?php else: ?>-<?php endif; ?>
-
 </td>
-
-
 <td>
-
 <?php if($p['file_surat_admin']): ?>
-
-<a href="<?= $storage_url.$p['file_surat_admin'] ?>" target="_blank">
-Download Surat
-</a>
-
+<div class="file-preview-grid">
+<?= render_preview_tile($p['file_surat_admin']) ?>
+</div>
 <?php else: ?>-<?php endif; ?>
-
 </td>
-
-
 <td>
-
 <form method="POST" enctype="multipart/form-data" style="margin-bottom:5px;">
-
 <input type="hidden" name="permohonan_id" value="<?= $p['id'] ?>">
-
-<input type="file" name="file_surat" required>
-
-<button type="submit" name="upload_surat">
+<input type="file" name="file_surat" class="upload-input" accept=".pdf,.jpg,.jpeg,.png" required>
+<div class="upload-preview-area is-empty">
+<span class="upload-preview-placeholder">Preview file upload akan tampil di sini</span>
+</div>
+<button type="submit" name="upload_surat" class="file-btn primary">
 Upload Surat
 </button>
-
 </form>
-
-
 <form method="POST" class="formHapus">
-
 <input type="hidden" name="permohonan_id" value="<?= $p['id'] ?>">
-
-<button type="submit" name="delete_permohonan">
+<button type="submit" name="delete_permohonan" class="file-btn danger">
 Hapus
 </button>
-
 </form>
-
 </td>
-
 </tr>
-
 <?php endforeach; ?>
 
 </table>
+</div>
+
+<div id="tab-arsip" class="tab-content" style="display:none;">
+<table border="1" cellpadding="5" cellspacing="0">
+
+<tr>
+<th>ID</th>
+<th>Penduduk</th>
+<th>Jenis Surat</th>
+<th>Keterangan</th>
+<th>Status</th>
+<th>File Penduduk</th>
+<th>File Surat</th>
+<th>Aksi</th>
+</tr>
+
+<?php foreach($permohonan_arsip as $p): ?>
+<tr>
+<td><?= $p['id'] ?></td>
+<td><?= htmlspecialchars($p['nama_lengkap']) ?></td>
+<td><?= htmlspecialchars($p['jenis_surat']) ?></td>
+<td><?= htmlspecialchars($p['keterangan']) ?></td>
+<td><?= htmlspecialchars($p['status']) ?></td>
+<td>
+<?php if($p['file_upload']):
+$files = array_filter(array_map('trim', explode(',', $p['file_upload']))); ?>
+<div class="file-preview-grid">
+<?php foreach($files as $f): ?>
+<?= render_preview_tile($f) ?>
+<?php endforeach; ?>
+</div>
+<?php else: ?>-<?php endif; ?>
+</td>
+<td>
+<?php if($p['file_surat_admin']): ?>
+<div class="file-preview-grid">
+<?= render_preview_tile($p['file_surat_admin']) ?>
+</div>
+<?php else: ?>-<?php endif; ?>
+</td>
+<td>
+<form method="POST" class="formHapus">
+<input type="hidden" name="permohonan_id" value="<?= $p['id'] ?>">
+<button type="submit" name="delete_permohonan" class="file-btn danger">
+Hapus
+</button>
+</form>
+</td>
+</tr>
+<?php endforeach; ?>
+
+</table>
+</div>
 
 
-<div id="lightbox" class="lightbox">
-
-<span class="close">&times;</span>
-
-<img class="lightbox-content" id="lightbox-img">
-
-<a id="lightbox-download" class="download-btn" href="#" download>
-Download
+<div id="previewModal" class="preview-modal" hidden>
+<div class="preview-dialog">
+<div class="preview-header">
+<h3 id="previewTitle">Lihat File</h3>
+<div class="preview-toolbar">
+<a id="previewDownloadLink" class="modal-icon-btn" href="#" target="_blank" aria-label="Download file" title="Download">
+<i data-feather="download"></i>
 </a>
-
-</div>  
+<button type="button" id="closePreview" class="modal-icon-btn" aria-label="Tutup preview" title="Tutup">
+<i data-feather="x"></i>
+</button>
+</div>
+</div>
+<div id="previewBody" class="preview-body"></div>
+</div>
+</div>
 
 </main>
 
 <script src="assets/js/kelola_surat.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabLinks.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const targetId = btn.getAttribute('data-target');
+
+            tabLinks.forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+
+            tabContents.forEach(function (c) {
+                c.style.display = (c.id === targetId) ? 'block' : 'none';
+            });
+        });
+    });
+});
+</script>
 
 </body>
 </html>

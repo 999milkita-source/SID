@@ -5,32 +5,72 @@ require_once '../../config/auth.php';
 ensure_session_started();
 check_login();
 
-// WAJIB LOGIN
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
     http_response_code(403);
     exit('Akses ditolak');
 }
 
-// validasi parameter
 if (!isset($_GET['file'])) {
     http_response_code(404);
     exit('File tidak valid');
 }
 
-$filename = basename($_GET['file']); // cegah ../
+$filename = basename((string) $_GET['file']);
+$role = $_SESSION['role'];
 
-// cek file ada di database & milik user
-$stmt = $pdo->prepare("
+if ($filename === '') {
+    http_response_code(404);
+    exit('File tidak valid');
+}
+
+$params = [
+    'file_upload' => $filename,
+    'file_final' => $filename,
+];
+
+$sql = "
     SELECT p.id
     FROM permohonan p
-    WHERE p.user_id = :uid
-      AND FIND_IN_SET(:file, p.file_upload)
-    LIMIT 1
-");
-$stmt->execute([
-    'uid'  => $_SESSION['user_id'],
-    'file' => $filename
-]);
+    JOIN users u ON p.user_id = u.id
+    WHERE (
+        FIND_IN_SET(:file_upload, p.file_upload)
+        OR p.file_surat_admin = :file_final
+    )
+";
+
+switch ($role) {
+    case 'admin':
+    case 'kades':
+        break;
+    case 'penduduk':
+        $sql .= " AND p.user_id = :uid";
+        $params['uid'] = (int) $_SESSION['user_id'];
+        break;
+    case 'rt':
+        if (!isset($_SESSION['rt'])) {
+            http_response_code(403);
+            exit('Akses ditolak');
+        }
+        $sql .= " AND u.rt = :rt";
+        $params['rt'] = (int) $_SESSION['rt'];
+        break;
+    case 'rw':
+        if (!isset($_SESSION['rw'])) {
+            http_response_code(403);
+            exit('Akses ditolak');
+        }
+        $sql .= " AND u.rw = :rw";
+        $params['rw'] = (int) $_SESSION['rw'];
+        break;
+    default:
+        http_response_code(403);
+        exit('Akses ditolak');
+}
+
+$sql .= " LIMIT 1";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
 
 if (!$stmt->fetch()) {
     http_response_code(403);

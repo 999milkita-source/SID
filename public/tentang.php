@@ -21,10 +21,13 @@ $profil = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <?php include 'inc/navbar.php'; ?>
 
 <main>
+    <div class="page-header">
+        <h1>Tentang Desa Wolokota</h1>
+    </div>
     <?php foreach($profil as $section): ?>
         <section class="card">
             <h2><?= htmlspecialchars($section['judul']) ?></h2>
-            <p><?= nl2br(htmlspecialchars($section['konten'])) ?></p>
+            <div><?= nl2br(htmlspecialchars($section['konten'])) ?></div>
         </section>
     <?php endforeach; ?>
 </main>

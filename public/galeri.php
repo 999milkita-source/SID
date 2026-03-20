@@ -22,25 +22,24 @@ $galeri = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <?php include 'inc/navbar.php'; ?>
 
 <main>
-  <section>
-    <h2>Galeri Desa Wolokota</h2>
+  <div class="page-header">
+    <h1>Galeri Desa Wolokota</h1>
     <p>Dokumentasi kegiatan, budaya, wisata, dan pelayanan masyarakat Desa Wolokota.</p>
+  </div>
+  <div class="galeri-grid">
+    <?php foreach($galeri as $g): ?>
+      <div class="galeri-item">
+        <img src="../uploads/<?= htmlspecialchars($g['file']) ?>" alt="<?= htmlspecialchars($g['judul']) ?>" loading="lazy">
+        <p><?= htmlspecialchars($g['judul']) ?></p>
+      </div>
+    <?php endforeach; ?>
 
-    <div class="galeri-grid">
-      <?php foreach($galeri as $g): ?>
-        <div class="galeri-item">
-          <img src="../uploads/<?= htmlspecialchars($g['file']) ?>" alt="<?= htmlspecialchars($g['judul']) ?>">
-          <p><?= htmlspecialchars($g['judul']) ?></p>
-        </div>
-      <?php endforeach; ?>
-
-      <?php if(count($galeri) === 0): ?>
-        <p style="grid-column:1/-1;text-align:center;color:#64748b">
-          Belum ada foto galeri.
-        </p>
-      <?php endif; ?>
-    </div>
-  </section>
+    <?php if(count($galeri) === 0): ?>
+      <div class="empty-state">
+        <p>Belum ada foto galeri.</p>
+      </div>
+    <?php endif; ?>
+  </div>
 </main>
 
 <script>

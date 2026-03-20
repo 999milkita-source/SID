@@ -79,7 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit">Login</button>
         </form>
         <?php if (isset($_SESSION['user_id'])): ?>
-            <p style="margin-top:12px; font-size:0.9rem; color:#666;">Sedang login sebagai <strong><?= htmlspecialchars($_SESSION['role']) ?></strong>. Isi lagi untuk login akun lain.</p>
+            <p style="margin-top:12px; font-size:0.9rem; color:#666;">Sedang login sebagai <strong><?= htmlspecialchars($_SESSION['role']) ?></strong>. <a href="<?= htmlspecialchars(get_role_home_url($_SESSION['role'] ?? null)) ?>">Buka dashboard</a> atau isi lagi untuk login akun lain.</p>
+            <p style="margin-top:8px; font-size:0.85rem; color:#666;">Jika ingin membuka dua akun berbeda secara bersamaan, gunakan browser, profil browser, atau mode incognito yang berbeda.</p>
         <?php endif; ?>
     </div>
 </div>

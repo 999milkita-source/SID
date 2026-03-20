@@ -106,6 +106,7 @@ $surat_list = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 <option value="Surat Keterangan Usaha">Surat Keterangan Usaha</option>
 <option value="Surat Keterangan Tidak Mampu">Surat Keterangan Tidak Mampu</option>
 </select>
+<div id="info-dokumen" class="alert alert-info" style="display:none;"></div>
 <p id="ket_surat" style="font-style:italic;color:#555;"></p>
 
 <label>Keperluan Surat</label>
@@ -152,5 +153,63 @@ $surat_list = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
 </main>
 <script src="assets/js/ajukan_surat.js"></script>
+<script>
+(function () {
+  function buildHtml(items) {
+    var lis = items.map(function (x) { return '<li>' + x + '</li>'; }).join('');
+    return ''
+      + '<strong>Dokumen yang diperlukan:</strong>'
+      + '<ul>' + lis + '</ul>'
+      + '<p><em>Tidak perlu surat pengantar RT/RW karena akan diverifikasi melalui sistem</em></p>';
+  }
+
+  function showBox(el, html) {
+    el.innerHTML = html;
+    el.style.transition = 'opacity 180ms ease';
+    el.style.opacity = '0';
+    el.style.display = 'block';
+    requestAnimationFrame(function () {
+      el.style.opacity = '1';
+    });
+  }
+
+  function hideBox(el) {
+    el.style.transition = 'opacity 150ms ease';
+    el.style.opacity = '0';
+    window.setTimeout(function () {
+      el.style.display = 'none';
+      el.innerHTML = '';
+    }, 160);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var select = document.getElementById('jenis_surat');
+    var box = document.getElementById('info-dokumen');
+    if (!select || !box) return;
+
+    var dokumenMap = {
+      'Surat Keterangan Domisili': ['Fotokopi KTP', 'Fotokopi KK'],
+      'Surat Keterangan Usaha': ['Fotokopi KTP', 'Foto tempat usaha'],
+      'Surat Keterangan Tidak Mampu': ['Fotokopi KTP', 'Fotokopi KK']
+    };
+
+    select.addEventListener('change', function () {
+      var value = (select.value || '').trim();
+      if (!value) {
+        showBox(box, 'Silakan pilih jenis surat terlebih dahulu');
+        return;
+      }
+
+      var items = dokumenMap[value];
+      if (!items) {
+        hideBox(box);
+        return;
+      }
+
+      showBox(box, buildHtml(items));
+    });
+  });
+})();
+</script>
 </body>
 </html>

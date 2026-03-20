@@ -1,39 +1,76 @@
-// status_surat.js
-
 document.addEventListener("DOMContentLoaded", function () {
-  const lightbox = document.getElementById("lightbox");
-  const lightboxImg = document.getElementById("lightbox-img");
-  const lightboxDownload = document.getElementById("lightbox-download");
-  const closeBtn = document.querySelector(".lightbox .close");
+  const modal = document.getElementById("previewModal");
+  const closeButton = document.getElementById("closePreview");
+  const previewBody = document.getElementById("previewBody");
+  const previewTitle = document.getElementById("previewTitle");
+  const downloadLink = document.getElementById("previewDownloadLink");
+  const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
 
-  // buka lightbox ketika gambar diklik
-  document.querySelectorAll(".lightbox-trigger").forEach((img) => {
-    img.addEventListener("click", function () {
-      const fileUrl = this.getAttribute("data-file");
-      const filename = this.getAttribute("data-filename");
+  if (!modal || !closeButton || !previewBody || !previewTitle || !downloadLink) {
+    return;
+  }
 
-      lightboxImg.src = fileUrl;
+  if (window.feather) {
+    window.feather.replace();
+  }
 
-      // download link diarahkan ke download.php
-      lightboxDownload.href =
-        "../public/inc/download.php?file=" + encodeURIComponent(filename);
-      lightboxDownload.setAttribute("download", filename);
+  const openPreview = (button) => {
+    const previewUrl = button.dataset.previewUrl || "";
+    const downloadUrl = button.dataset.downloadUrl || previewUrl;
+    const fileType = (button.dataset.filetype || "").toLowerCase();
+    const fileName = button.dataset.filename || "dokumen";
 
-      lightbox.style.display = "block";
-    });
+    previewBody.innerHTML = "";
+    previewTitle.textContent = `Lihat File: ${fileName}`;
+    downloadLink.href = downloadUrl;
+    downloadLink.setAttribute("download", fileName);
+
+    if (imageExtensions.includes(fileType)) {
+      const image = document.createElement("img");
+      image.src = previewUrl;
+      image.alt = fileName;
+      image.className = "preview-media";
+      previewBody.appendChild(image);
+    } else if (fileType === "pdf") {
+      const frame = document.createElement("iframe");
+      frame.src = previewUrl;
+      frame.className = "preview-frame";
+      frame.title = fileName;
+      previewBody.appendChild(frame);
+    } else {
+      const message = document.createElement("p");
+      message.className = "preview-fallback";
+      message.textContent = "Preview tidak tersedia untuk tipe file ini.";
+      previewBody.appendChild(message);
+    }
+
+    modal.hidden = false;
+  };
+
+  const closePreview = () => {
+    modal.hidden = true;
+    previewBody.innerHTML = "";
+    previewTitle.textContent = "Lihat File";
+    downloadLink.href = "#";
+  };
+
+  document.addEventListener("click", function (event) {
+    const trigger = event.target.closest(".preview-trigger");
+    if (trigger) {
+      openPreview(trigger);
+      return;
+    }
+
+    if (event.target === modal) {
+      closePreview();
+    }
   });
 
-  // tutup lightbox
-  closeBtn.addEventListener("click", function () {
-    lightbox.style.display = "none";
-    lightboxImg.src = "";
-  });
+  closeButton.addEventListener("click", closePreview);
 
-  // klik di luar gambar juga tutup lightbox
-  lightbox.addEventListener("click", function (e) {
-    if (e.target === lightbox) {
-      lightbox.style.display = "none";
-      lightboxImg.src = "";
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && !modal.hidden) {
+      closePreview();
     }
   });
 });

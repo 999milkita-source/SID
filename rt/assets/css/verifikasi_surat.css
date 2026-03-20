@@ -70,6 +70,7 @@ body {
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   margin-top: 20px;
+  overflow-x: auto;
 }
 
 /* =================================
@@ -95,6 +96,53 @@ body {
 
 .table tr:hover {
   background: #f1f5f9;
+}
+
+.verification-form {
+  margin: 0;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.action-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 9px 14px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+}
+
+.approve-btn {
+  background: #16a34a;
+}
+
+.approve-btn:hover {
+  background: #15803d;
+}
+
+.reject-btn {
+  background: #dc2626;
+}
+
+.reject-btn:hover {
+  background: #b91c1c;
+}
+
+.empty-state {
+  text-align: center;
+  color: #64748b;
 }
 
 .badge {
@@ -224,5 +272,10 @@ body {
   .file-grid img {
     max-width: 60px;
     max-height: 60px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
