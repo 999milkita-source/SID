@@ -29,7 +29,7 @@ $galeri = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <div class="galeri-grid">
     <?php foreach($galeri as $g): ?>
       <div class="galeri-item">
-        <img src="../uploads/<?= htmlspecialchars($g['file']) ?>" alt="<?= htmlspecialchars($g['judul']) ?>" loading="lazy">
+        <img src="admin/dashboard_public/uploads/<?= htmlspecialchars($g['file']) ?>" alt="<?= htmlspecialchars($g['judul']) ?>" loading="lazy">
         <p><?= htmlspecialchars($g['judul']) ?></p>
       </div>
     <?php endforeach; ?>
