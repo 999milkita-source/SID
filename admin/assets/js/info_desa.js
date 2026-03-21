@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", function () {
   window.openAdd = function () {
     form.reset();
     document.getElementById("id").value = "";
+    if (typeof window.syncBackgroundForm === "function") {
+      window.syncBackgroundForm();
+    }
     modal.style.display = "flex";
   };
 
@@ -14,6 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("tipe").value = data.tipe;
     document.getElementById("urutan").value = data.urutan;
     document.getElementById("konten").value = data.konten;
+    if (typeof window.syncBackgroundForm === "function") {
+      window.syncBackgroundForm();
+    }
     modal.style.display = "flex";
   };
 

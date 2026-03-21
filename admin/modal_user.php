@@ -8,7 +8,7 @@
       <input type="hidden" name="id" id="id">
       <input type="hidden" name="mode" id="mode" value="penduduk">
 
-      <div id="pendudukFields">
+      <div id="pendudukFields" style="grid-column: span 2;">
         <label>NIK</label>
         <input type="text" name="nik" id="nik">
 

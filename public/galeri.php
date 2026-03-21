@@ -12,10 +12,8 @@ $galeri = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <title>Galeri Desa - SID Wolokota</title>
     <link rel="stylesheet" href="assets/css/style.css">
-
     <!-- feather icon -->
     <script src="https://unpkg.com/feather-icons"></script>
-
 </head>
 <body>
 
@@ -26,6 +24,7 @@ $galeri = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h1>Galeri Desa Wolokota</h1>
     <p>Dokumentasi kegiatan, budaya, wisata, dan pelayanan masyarakat Desa Wolokota.</p>
   </div>
+  
   <div class="galeri-grid">
     <?php foreach($galeri as $g): ?>
       <div class="galeri-item">

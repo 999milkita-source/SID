@@ -1,6 +1,51 @@
 <?php
 // navbar.php
+// Theme dinamis: background halaman dibaca dari tabel info_desa (tipe='background')
+$bgStyle = "linear-gradient(135deg, #ecfeff, #f8fafc)";
+
+try {
+    if (isset($pdo)) {
+        $stmt = $pdo->prepare("SELECT konten FROM info_desa WHERE tipe='background' ORDER BY urutan ASC LIMIT 1");
+        $stmt->execute();
+        $raw = $stmt->fetchColumn();
+
+        if ($raw) {
+            $rawTrim = trim((string)$raw);
+            $cfg = json_decode($rawTrim, true);
+
+            // Format yang disarankan (konten):
+            // 1) Gradient:
+            //    {"type":"gradient","color1":"#ecfeff","color2":"#f8fafc"}
+            // 2) Gambar:
+            //    {"type":"image","file":"nama_file.jpg"}
+            if (is_array($cfg) && !empty($cfg['type'])) {
+                if ($cfg['type'] === 'image' && !empty($cfg['file'])) {
+                    $file = (string)$cfg['file'];
+                    $url = "../uploads/" . $file; // karena navbar ini ter-include di /public/*.php
+                    $bgStyle = "url('" . $url . "') center / cover no-repeat fixed";
+                } elseif ($cfg['type'] === 'gradient') {
+                    $c1 = !empty($cfg['color1']) ? (string)$cfg['color1'] : '#ecfeff';
+                    $c2 = !empty($cfg['color2']) ? (string)$cfg['color2'] : '#f8fafc';
+                    $bgStyle = "linear-gradient(135deg, {$c1}, {$c2})";
+                }
+            } else {
+                // fallback: admin bisa isi langsung CSS background
+                if (stripos($rawTrim, 'linear-gradient') !== false || stripos($rawTrim, 'url(') !== false) {
+                    $bgStyle = $rawTrim;
+                }
+            }
+        }
+    }
+} catch (Exception $e) {
+    // jika gagal parsing DB, pakai background default
+}
 ?>
+
+<style>
+  html, body {
+    background: <?= $bgStyle ?> !important;
+  }
+</style>
 <nav class="navbar">
     <div class="logo">
         <h1>Desa Wolokota</h1>

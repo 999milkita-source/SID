@@ -10,9 +10,8 @@ $profil = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Profil Desa - SID Wolokota</title>
+    <title>Tentang Desa Wolokota - SID Wolokota</title>
     <link rel="stylesheet" href="assets/css/style.css">
-
     <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
 </head>
@@ -24,8 +23,9 @@ $profil = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="page-header">
         <h1>Tentang Desa Wolokota</h1>
     </div>
+    
     <?php foreach($profil as $section): ?>
-        <section class="card">
+        <section class="content-section">
             <h2><?= htmlspecialchars($section['judul']) ?></h2>
             <div><?= nl2br(htmlspecialchars($section['konten'])) ?></div>
         </section>
@@ -39,3 +39,4 @@ $profil = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <script src="assets/js/navbar.js"></script>
 </body>
 </html>
+

@@ -5,7 +5,8 @@ function setModePenduduk() {
   document.getElementById("mode").value = "penduduk";
   document.getElementById("userFields").style.display = "none";
   const pendudukBlock = document.getElementById("pendudukFields");
-  if (pendudukBlock) pendudukBlock.style.display = "grid";
+  // pendudukFields adalah item grid dari parent form; jangan ubah jadi grid lagi
+  if (pendudukBlock) pendudukBlock.style.display = "block";
   // aktifkan field penduduk
   ["nik","nama_lengkap","tempat_lahir","tanggal_lahir","jenis_kelamin","alamat","rt","rw","no_hp"].forEach(id => {
     const el = document.getElementById(id);

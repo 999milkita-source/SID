@@ -10,9 +10,8 @@ $profil = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Profil Desa - SID Wolokota</title>
+    <title>Beranda - SID Wolokota</title>
     <link rel="stylesheet" href="assets/css/style.css">
-
     <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
 </head>
@@ -21,14 +20,14 @@ $profil = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <?php include 'inc/navbar.php'; ?>
 
 <main>
-    <!-- Hero Section for Index -->
+    <!-- Hero Section - Clean no box -->
     <section class="hero">
         <h1>Selamat Datang di Desa Wolokota</h1>
         <p>Sistem Informasi Desa Wolokota menyediakan pelayanan terpadu untuk warga. Ajukan surat online, lihat profil desa, galeri kegiatan, dan informasi terkini.</p>
     </section>
     
     <?php foreach($profil as $section): ?>
-        <section class="card">
+        <section class="content-section">
             <h2><?= htmlspecialchars($section['judul']) ?></h2>
             <div><?= nl2br(htmlspecialchars($section['konten'])) ?></div>
         </section>
