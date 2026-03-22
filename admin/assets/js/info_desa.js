@@ -1,93 +1,132 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const modal = document.getElementById("modal");
-  const form = document.querySelector("#modal form");
+const tabMap = {
+  'beranda': 'Beranda',
+  'profil': 'Profil',
+  'tentang': 'Tentang',
+  'kontak': 'Kontak'
+};
 
-  window.openAdd = function () {
-    form.reset();
-    document.getElementById("id").value = "";
-    modal.style.display = "flex";
-  };
+// ================= TAB =================
+document.querySelectorAll(".tab-btn").forEach((btn) => {
+  btn.addEventListener("click", function () {
+    const tab = this.dataset.tab;
 
-  window.openEdit = function (data) {
-    document.getElementById("id").value = data.id;
-    document.getElementById("judul").value = data.judul;
-    document.getElementById("tipe").value = data.tipe;
-    document.getElementById("urutan").value = data.urutan;
-    document.getElementById("konten").value = data.konten;
-    modal.style.display = "flex";
-  };
+    // simpan ke URL
+    const url = new URL(window.location);
+    url.searchParams.set("tab", tab);
+    window.history.pushState({}, "", url);
 
-  window.closeModal = function () {
-    modal.style.display = "none";
-  };
+    document
+      .querySelectorAll(".tab-btn")
+      .forEach((b) => b.classList.remove("active"));
+    document
+      .querySelectorAll(".tab-panel")
+      .forEach((p) => p.classList.remove("active"));
 
-  // Custom Delete Confirm
-  document.querySelectorAll(".btn-delete").forEach((btn) => {
-    btn.addEventListener("click", function (e) {
-      e.preventDefault();
-      showConfirm("Yakin ingin menghapus data ini?", () => {
-        window.location.href = this.href;
-      });
-    });
+    this.classList.add("active");
+    document.getElementById("tab-" + tab).classList.add("active");
   });
+});
 
-  function showConfirm(message, callback) {
-    const overlay = document.createElement("div");
-    overlay.className = "custom-alert";
+// 🔥 LOAD TAB DARI URL
+window.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get("tab");
 
-    overlay.innerHTML = `
-      <div class="alert-box">
-        <p>${message}</p>
-        <div class="alert-action">
-          <button class="btn-confirm">Ya</button>
-          <button class="btn-cancel">Batal</button>
-        </div>
-      </div>
-    `;
+  if (tab) {
+    document
+      .querySelectorAll(".tab-btn")
+      .forEach((b) => b.classList.remove("active"));
+    document
+      .querySelectorAll(".tab-panel")
+      .forEach((p) => p.classList.remove("active"));
 
-    document.body.appendChild(overlay);
+    const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+    const panel = document.getElementById("tab-" + tab);
 
-    overlay.querySelector(".btn-confirm").onclick = () => {
-      callback();
-      overlay.remove();
-    };
-
-    overlay.querySelector(".btn-cancel").onclick = () => {
-      overlay.remove();
-    };
+    if (btn && panel) {
+      btn.classList.add("active");
+      panel.classList.add("active");
+    }
   }
 });
-// ===============================
-// SUCCESS ALERT
-// ===============================
+
+// ================= MODAL =================
+function openModal(type = "text", tab = "beranda") {
+  const modal = document.getElementById("modal");
+
+  document.getElementById("text-form").reset();
+  document.getElementById("galeri-form").reset();
+
+  if (type === "text") {
+    document.getElementById("text-form").style.display = "block";
+    document.getElementById("galeri-form").style.display = "none";
+    document.getElementById("text-type").value = tab;
+    document.getElementById("modal-title").textContent = `Tambah Konten - ${tabMap[tab] || tab.charAt(0).toUpperCase() + tab.slice(1)}`;
+    document.getElementById("tab-label").textContent = tabMap[tab] || tab;
+  } else {
+    document.getElementById("text-form").style.display = "none";
+    document.getElementById("galeri-form").style.display = "block";
+    document.getElementById("modal-title").textContent = "Tambah Galeri";
+  }
+
+  modal.style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+}
+
+// ================= EDIT =================
+function editRow(data, type) {
+  openModal(type, data.tipe || "beranda");
+
+  setTimeout(() => {
+    if (type === "text") {
+      document.getElementById("text-id").value = data.id;
+      document.getElementById("text-type").value = data.tipe;
+      document.getElementById("text-judul").value = data.judul;
+      document.getElementById("text-urutan").value = data.urutan || 0;
+      document.getElementById("text-konten").value = data.konten || "";
+      const tabLabel = tabMap[data.tipe] || data.tipe;
+      document.getElementById("modal-title").textContent = `Edit Konten - ${tabLabel}`;
+      document.getElementById("tab-label").textContent = tabLabel;
+    } else {
+      document.getElementById("galeri-id").value = data.id;
+      document.getElementById("galeri-judul").value = data.judul;
+      document.getElementById("modal-title").textContent = "Edit Foto";
+    }
+  }, 100);
+}
+
+// ================= DELETE =================
+function deleteRow(id, type) {
+  if (confirm("Yakin hapus data?")) {
+    const tab =
+      new URLSearchParams(window.location.search).get("tab") || "beranda";
+
+    window.location.href =
+      (type === "text"
+        ? "hapus_info.php?id=" + id
+        : "hapus_galeri.php?id=" + id) +
+      "&tab=" +
+      tab;
+  }
+}
+
+// ================= TOAST =================
 const params = new URLSearchParams(window.location.search);
-const status = params.get("status");
 
-if (status === "sukses_simpan") {
-  showAlert("Data berhasil disimpan!");
-}
+if (params.get("status")) {
+  const toast = document.createElement("div");
+  toast.className = "toast show";
 
-if (status === "sukses_hapus") {
-  showAlert("Data berhasil dihapus!");
-}
+  if (params.get("status").includes("sukses")) {
+    toast.textContent = "✅ Berhasil!";
+  } else {
+    toast.classList.add("error");
+    toast.textContent = "❌ Terjadi kesalahan!";
+  }
 
-function showAlert(message) {
-  const overlay = document.createElement("div");
-  overlay.className = "custom-alert";
-
-  overlay.innerHTML = `
-    <div class="alert-box">
-      <p>${message}</p>
-      <div class="alert-action">
-        <button class="btn-confirm">OK</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  overlay.querySelector(".btn-confirm").onclick = () => {
-    overlay.remove();
-    window.history.replaceState({}, document.title, "info_desa.php");
-  };
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
 }

@@ -1,7 +1,15 @@
-# TODO: Fix Kelola Konten Publik Tabs
+# GALERI FIX COMPLETE ✅
 
-1. [x] Fix grouping logic in info_desa.php to handle case/trim tipe
-2. [x] Check/create uploads/ dir for galeri (if needed)
-3. [x] Test tabs show data (user reload page)
-4. [ ] Add AJAX refresh (skipped - reload sufficient)
-COMPLETE ✅ Kelola Konten Publik full CRUD, public pages integrated, DB normalized, galeri path fixed.
+## Changes Made:
+- uploads/ dir created
+- upload_galeri.php: path → ../../uploads/, redirects → galeri.php?status=*
+- galeri.php: added success alert, img src=../../uploads/, onerror fallback
+- public/galeri.php: img onerror + "Gambar tidak ditemukan" text
+
+## Test:
+1. Admin → galeri.php → Upload foto → See alert + image displays
+2. public/galeri.php → Images show
+3. Delete image file → See fallback text
+
+Run: `http://localhost/sidwolokota/public/galeri.php`
+

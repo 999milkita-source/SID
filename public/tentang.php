@@ -1,19 +1,23 @@
 <?php
 require_once '../config/config.php';
 
-// Ambil konten profil dari DB
-$stmt = $pdo->prepare("SELECT * FROM info_desa WHERE tipe='tentang' ORDER BY urutan ASC");
+// Ambil konten tentang
+$stmt = $pdo->prepare("
+    SELECT judul, konten 
+    FROM info_desa 
+    WHERE LOWER(tipe) = 'tentang' 
+    ORDER BY urutan ASC
+");
 $stmt->execute();
-$profil = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$tentang = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Profil Desa - SID Wolokota</title>
+    <title>Tentang Desa - SID Wolokota</title>
     <link rel="stylesheet" href="assets/css/style.css">
 
-    <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
 </head>
 <body>
@@ -24,12 +28,20 @@ $profil = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="page-header">
         <h1>Tentang Desa Wolokota</h1>
     </div>
-    <?php foreach($profil as $section): ?>
+
+    <?php if (empty($tentang)): ?>
         <section class="card">
-            <h2><?= htmlspecialchars($section['judul']) ?></h2>
-            <div><?= nl2br(htmlspecialchars($section['konten'])) ?></div>
+            <h2>Belum Ada Data</h2>
+            <p>Konten tentang belum tersedia.</p>
         </section>
-    <?php endforeach; ?>
+    <?php else: ?>
+        <?php foreach($tentang as $section): ?>
+            <section class="card">
+                <h2><?= htmlspecialchars($section['judul']) ?></h2>
+                <div><?= nl2br(htmlspecialchars($section['konten'])) ?></div>
+            </section>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </main>
 
 <script>

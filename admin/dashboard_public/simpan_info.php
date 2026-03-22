@@ -14,11 +14,11 @@ $urutan = (int)($_POST['urutan'] ?? 0);
 $konten = trim($_POST['konten'] ?? '');
 
 if ($judul === '' || $tipe === '' || $konten === '') {
-    die("Data tidak lengkap.");
+    header("Location: info_desa.php?error=data_kosong");
+    exit;
 }
 
 try {
-
     if ($id) {
         // UPDATE
         $stmt = $pdo->prepare("
@@ -27,7 +27,6 @@ try {
             WHERE id = ?
         ");
         $stmt->execute([$judul, $tipe, $urutan, $konten, $id]);
-
     } else {
         // INSERT
         $stmt = $pdo->prepare("
@@ -37,9 +36,10 @@ try {
         $stmt->execute([$judul, $tipe, $urutan, $konten]);
     }
 
-  header("Location: info_desa.php?status=sukses_simpan");
-exit;
-
+    header("Location: info_desa.php?status=sukses_simpan");
+    exit();
 } catch (PDOException $e) {
-    die("Error database: " . $e->getMessage());
+    header("Location: info_desa.php?error=db_" . urlencode($e->getMessage()));
+    exit;
 }
+?>

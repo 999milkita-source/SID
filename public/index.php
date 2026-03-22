@@ -1,16 +1,21 @@
 <?php
 require_once '../config/config.php';
 
-// Ambil konten profil dari DB
-$stmt = $pdo->prepare("SELECT * FROM info_desa WHERE tipe='beranda' ORDER BY urutan ASC");
+// Ambil konten beranda
+$stmt = $pdo->prepare("
+    SELECT judul, konten 
+    FROM info_desa 
+    WHERE LOWER(tipe) = 'beranda' 
+    ORDER BY urutan ASC
+");
 $stmt->execute();
-$profil = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$beranda = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Profil Desa - SID Wolokota</title>
+    <title>Beranda - SID Wolokota</title>
     <link rel="stylesheet" href="assets/css/style.css">
 
     <!-- Feather Icons -->
@@ -21,18 +26,25 @@ $profil = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <?php include 'inc/navbar.php'; ?>
 
 <main>
-    <!-- Hero Section for Index -->
+    <!-- Hero Section -->
     <section class="hero">
         <h1>Selamat Datang di Desa Wolokota</h1>
         <p>Sistem Informasi Desa Wolokota menyediakan pelayanan terpadu untuk warga. Ajukan surat online, lihat profil desa, galeri kegiatan, dan informasi terkini.</p>
     </section>
-    
-    <?php foreach($profil as $section): ?>
+
+    <?php if (empty($beranda)): ?>
         <section class="card">
-            <h2><?= htmlspecialchars($section['judul']) ?></h2>
-            <div><?= nl2br(htmlspecialchars($section['konten'])) ?></div>
+            <h2>Belum Ada Konten</h2>
+            <p>Konten beranda belum tersedia. Silakan tambah melalui admin.</p>
         </section>
-    <?php endforeach; ?>
+    <?php else: ?>
+        <?php foreach($beranda as $section): ?>
+            <section class="card">
+                <h2><?= htmlspecialchars($section['judul']) ?></h2>
+                <div><?= nl2br(htmlspecialchars($section['konten'])) ?></div>
+            </section>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </main>
 
 <script>
